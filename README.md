@@ -78,7 +78,7 @@ We welcome contributions to the `strapi-table` plugin! If you have suggestions, 
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](MIT) file for details.
 
 ## Author
 
