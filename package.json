@@ -64,7 +64,7 @@
     "displayName": "Strapi Table",
     "description": ""
   },
-  "name": "strapi-table",
+  "name": "@mish.dev/strapi-table",
   "description": "",
   "license": "MIT",
   "author": "Hwaiteu <benner.andrey.loon@gmail.com>",
