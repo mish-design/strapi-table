@@ -9,8 +9,6 @@
     "table",
     "grid",
     "tabular data",
-    "wysiwyg",
-    "rich text",
     "react-quill"
   ],
   "homepage": "https://github.com/mish.dev/strapi-table",
