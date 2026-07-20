@@ -28,7 +28,7 @@ To install the `strapi-table` plugin, follow these steps:
 
     ```javascript
     {
-      'strapi-table': {
+      table: {
         enabled: true,
         resolve: '@mish.dev/strapi-table',
       },

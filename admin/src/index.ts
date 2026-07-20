@@ -1,6 +1,5 @@
 import { PLUGIN_ID } from './pluginId';
 import { Initializer } from './components/Initializer';
-import { PluginIcon } from './components/PluginIcon';
 
 export default {
   register(app: any) {
@@ -12,7 +11,7 @@ export default {
     });
 
     app.customFields.register({
-      name: 'strapi-table',
+      name: 'StrapiTable',
       pluginId: PLUGIN_ID,
       type: 'json',
       size: 12,

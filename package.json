@@ -1,9 +1,52 @@
 {
-  "version": "0.0.1",
-  "keywords": [],
+  "name": "@mish.dev/strapi-table",
+  "version": "1.0.0",
+  "description": "The strapi-table plugin enhances your Strapi administration panel by providing advanced table functionalities.",
+  "keywords": [
+    "strapi",
+    "strapi-plugin",
+    "strapi5",
+    "table",
+    "grid",
+    "tabular data",
+    "wysiwyg",
+    "rich text",
+    "react-quill"
+  ],
+  "homepage": "https://github.com/mish.dev/strapi-table",
+  "bugs": {
+    "url": "https://github.com/mish-design/strapi-table/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mish.dev/strapi-table"
+  },
+  "license": "MIT",
+  "author": "Hwaiteu <benner.andrey.loon@gmail.com>",
   "type": "commonjs",
   "exports": {
+    ".": {
+      "types": "./dist/admin/src/index.d.ts",
+      "source": "./admin/src/index.ts",
+      "import": "./dist/admin/index.mjs",
+      "require": "./dist/admin/index.js",
+      "default": "./dist/admin/index.js"
+    },
     "./package.json": "./package.json",
+    "./admin": {
+      "types": "./dist/admin/src/index.d.ts",
+      "source": "./admin/src/index.ts",
+      "import": "./dist/admin/index.mjs",
+      "require": "./dist/admin/index.js",
+      "default": "./dist/admin/index.js"
+    },
+    "./server": {
+      "types": "./dist/server/src/index.d.ts",
+      "source": "./server/src/index.ts",
+      "import": "./dist/server/index.mjs",
+      "require": "./dist/server/index.js",
+      "default": "./dist/server/index.js"
+    },
     "./strapi-admin": {
       "types": "./dist/admin/src/index.d.ts",
       "source": "./admin/src/index.ts",
@@ -23,55 +66,51 @@
     "dist"
   ],
   "scripts": {
-    "build": "strapi-plugin build",
+    "build": "strapi-plugin build && node -e \"fs.writeFileSync('./dist/admin/package.json', '{\\\"type\\\": \\\"commonjs\\\"}')\"",
     "watch": "strapi-plugin watch",
     "watch:link": "strapi-plugin watch:link",
     "verify": "strapi-plugin verify",
     "test:ts:front": "tsc -p admin/tsconfig.json",
     "test:ts:back": "tsc -p server/tsconfig.json"
   },
+  "dependencies": {
+    "react-quill-new": "3.8.3",
+    "sanitize-html": "2.17.6",
+    "zustand": "5.0.14"
+  },
   "devDependencies": {
-    "@strapi/design-system": "^2.2.0",
-    "@strapi/icons": "^2.2.0",
+    "@strapi/design-system": "^2.0.0",
+    "@strapi/icons": "^2.0.0",
     "@strapi/sdk-plugin": "^6.1.0",
-    "@strapi/strapi": "^5.39.0",
-    "@strapi/typescript-utils": "^5.39.0",
-    "@types/react": "^18.3.28",
-    "@types/react-dom": "^18.3.7",
+    "@strapi/strapi": "^5.0.0",
+    "@strapi/typescript-utils": "^5.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
     "@types/sanitize-html": "^2.16.1",
     "prettier": "^3.8.3",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-intl": "^6.8.9",
-    "react-router-dom": "^6.30.3",
-    "styled-components": "^6.4.1",
-    "typescript": "^5.9.3"
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-intl": "^6.0.0",
+    "react-router-dom": "^6.0.0",
+    "styled-components": "^6.0.0",
+    "typescript": "^5.0.0"
   },
   "peerDependencies": {
-    "@strapi/design-system": "^2.2.0",
-    "@strapi/icons": "^2.2.0",
+    "@strapi/design-system": "^2.0.0",
+    "@strapi/icons": "^2.0.0",
     "@strapi/sdk-plugin": "^6.1.0",
-    "@strapi/strapi": "^5.39.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-intl": "^6.8.9",
-    "react-router-dom": "^6.30.3",
-    "styled-components": "^6.4.1"
+    "@strapi/strapi": "^5.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-intl": "^6.0.0",
+    "react-router-dom": "^6.0.0",
+    "styled-components": "^6.0.0"
   },
   "strapi": {
     "kind": "plugin",
     "name": "strapi-table",
     "displayName": "Strapi Table",
-    "description": ""
-  },
-  "name": "strapi-table",
-  "description": "",
-  "license": "MIT",
-  "author": "Hwaiteu <benner.andrey.loon@gmail.com>",
-  "dependencies": {
-    "react-quill-new": "3.8.3",
-    "sanitize-html": "2.17.6",
-    "zustand": "5.0.14"
+    "description": "The strapi-table plugin enhances your Strapi administration panel by providing advanced table functionalities."
   },
   "allowScripts": {
     "esbuild@0.21.5": true,
