@@ -1,5 +1,5 @@
 {
-  "version": "0.0.0-alpha.2",
+  "version": "0.0.1",
   "keywords": [],
   "type": "commonjs",
   "exports": {
@@ -64,7 +64,7 @@
     "displayName": "Strapi Table",
     "description": ""
   },
-  "name": "@mish.dev/strapi-table",
+  "name": "strapi-table",
   "description": "",
   "license": "MIT",
   "author": "Hwaiteu <benner.andrey.loon@gmail.com>",
