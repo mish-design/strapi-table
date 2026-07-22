@@ -1,5 +1,5 @@
 import { Button, Flex } from '@strapi/design-system';
-import { type Table as ITable, useTableStore } from '../../hooks/useTable';
+import { type Table as ITable, TableStoreProvider, createTableStore } from '../../hooks/useTable';
 import { Header } from './Header/Header';
 import {
   HorizontalSentinel,
@@ -19,8 +19,34 @@ type Props = {
   onChange?: (value: ITable) => void;
 };
 
+const mockTable: ITable = {
+  columns: [
+    {
+      id: 'col-1',
+      header: 'Название товара',
+    },
+    {
+      id: 'col-2',
+      header: 'Описание и характеристики',
+    },
+  ],
+  rows: [
+    {
+      id: 'row-1',
+      'col-1': [],
+      'col-2': [],
+    },
+    {
+      id: 'row-2',
+      'col-1': [],
+      'col-2': [],
+    },
+  ],
+};
+
 export const Table = ({ onChange, value }: Readonly<Props>) => {
-  const { tableData, handleAddRow, handleAddColumn, setTableData } = useTableStore();
+  const useInstanceTableStore = useMemo(() => createTableStore(value || mockTable), [value]);
+  const { tableData, handleAddRow, handleAddColumn, setTableData } = useInstanceTableStore();
   const { activeCell, activeTable } = useActiveStore();
 
   const topScroll = useIntersection();
@@ -58,36 +84,38 @@ export const Table = ({ onChange, value }: Readonly<Props>) => {
   }, [tableData, notifyChange]);
 
   return (
-    <div>
-      <Flex justifyContent="flex-end" alignItems="center" gap={2} marginBottom={4}>
-        <Button variant="secondary" onClick={handleAddColumn} startIcon={<Plus />}>
-          Добавить колонку
-        </Button>
-        <Button variant="secondary" onClick={handleAddRow} startIcon={<Plus />}>
-          Добавить строку
-        </Button>
-      </Flex>
-      <TableContentHorizontal
-        width={
-          activeCell ? 250 * (tableData.columns.length - 1) + 500 : 250 * tableData.columns.length
-        }
-        $isSelected={activeTable}
-      >
-        <HorizontalSentinel ref={leftScroll.sentinelRef} />
+    <TableStoreProvider value={useInstanceTableStore}>
+      <div>
+        <Flex alignItems="center" style={{ justifyContent: 'flex-end' }} gap={2} marginBottom={4}>
+          <Button variant="secondary" onClick={handleAddColumn} startIcon={<Plus />}>
+            Добавить колонку
+          </Button>
+          <Button variant="secondary" onClick={handleAddRow} startIcon={<Plus />}>
+            Добавить строку
+          </Button>
+        </Flex>
+        <TableContentHorizontal
+          width={
+            activeCell ? 250 * (tableData.columns.length - 1) + 500 : 250 * tableData.columns.length
+          }
+          $isSelected={activeTable}
+        >
+          <HorizontalSentinel ref={leftScroll.sentinelRef} />
 
-        <TableContentVertical>
-          <VerticalSentinel ref={topScroll.sentinelRef} />
+          <TableContentVertical>
+            <VerticalSentinel ref={topScroll.sentinelRef} />
 
-          <StyledTable>
-            <Header columns={tableData.columns} $hasShadow={topScroll.isScrolled} />
-            <Row
-              rows={tableData.rows}
-              $hasLeftShadow={leftScroll.isScrolled}
-              columnsCount={tableData.columns.length}
-            />
-          </StyledTable>
-        </TableContentVertical>
-      </TableContentHorizontal>
-    </div>
+            <StyledTable>
+              <Header columns={tableData.columns} $hasShadow={topScroll.isScrolled} />
+              <Row
+                rows={tableData.rows}
+                $hasLeftShadow={leftScroll.isScrolled}
+                columnsCount={tableData.columns.length}
+              />
+            </StyledTable>
+          </TableContentVertical>
+        </TableContentHorizontal>
+      </div>
+    </TableStoreProvider>
   );
 };

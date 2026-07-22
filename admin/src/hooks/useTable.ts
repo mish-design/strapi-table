@@ -1,5 +1,6 @@
 import { Modules } from '@strapi/strapi';
-import { create } from 'zustand';
+import { createContext, useContext } from 'react';
+import { create, StoreApi, UseBoundStore } from 'zustand';
 
 export type Image = {
   type: 'image';
@@ -41,31 +42,6 @@ export type Table = {
   rows: Row[];
 };
 
-const mock: Table = {
-  columns: [
-    {
-      id: 'col-1',
-      header: 'Название товара',
-    },
-    {
-      id: 'col-2',
-      header: 'Описание и характеристики',
-    },
-  ],
-  rows: [
-    {
-      id: 'row-1',
-      'col-1': [],
-      'col-2': [],
-    },
-    {
-      id: 'row-2',
-      'col-1': [],
-      'col-2': [],
-    },
-  ],
-};
-
 type TableState = {
   tableData: Table;
 
@@ -93,177 +69,191 @@ type TableState = {
   handleRemoveIconFromHeader: (colId: string) => void;
 };
 
-export const useTableStore = create<TableState>((set, get) => ({
-  tableData: {
-    columns: mock.columns,
-    rows: mock.rows,
-  },
+export const createTableStore = (initData: Table): UseBoundStore<StoreApi<TableState>> => {
+  return create<TableState>((set) => ({
+    tableData: initData,
 
-  setTableData: (data) => set({ tableData: data }),
+    setTableData: (data) => set({ tableData: data }),
 
-  handleChangeBlock: (colId, rowId, blockId, newValue) =>
-    set((state) => {
-      const newData = state.tableData.rows.map<Row>((item) => {
-        if (item.id !== rowId) return item;
-        const column = item[colId];
-        if (!column || typeof column === 'string') return item;
+    handleChangeBlock: (colId, rowId, blockId, newValue) =>
+      set((state) => {
+        const newData = state.tableData.rows.map<Row>((item) => {
+          if (item.id !== rowId) return item;
+          const column = item[colId];
+          if (!column || typeof column === 'string') return item;
 
-        return {
-          ...item,
-          [colId]: column.map((i) => {
-            if (i.id !== blockId) return i;
-            if (i.type === 'text' && typeof newValue === 'string') {
-              return { ...i, value: newValue };
-            }
-            if (i.type === 'image' && typeof newValue === 'object' && newValue !== null) {
-              return { ...i, image: newValue };
-            }
-            return i;
-          }),
-        };
-      });
-
-      return { tableData: { ...state.tableData, rows: newData } };
-    }),
-
-  handleAddEntityInBlock: (colId, rowId, type, value) =>
-    set((state) => {
-      const newData = state.tableData.rows.map<Row>((item) => {
-        if (item.id !== rowId) return item;
-
-        const column = item[colId];
-        if (!column || typeof column === 'string') return item;
-
-        if (type === 'text' && typeof value === 'string') {
           return {
             ...item,
-            [colId]: column.concat([
-              { id: `block_${String(window.crypto.randomUUID())}`, type: 'text', value },
-            ]),
+            [colId]: column.map((i) => {
+              if (i.id !== blockId) return i;
+              if (i.type === 'text' && typeof newValue === 'string') {
+                return { ...i, value: newValue };
+              }
+              if (i.type === 'image' && typeof newValue === 'object' && newValue !== null) {
+                return { ...i, image: newValue };
+              }
+              return i;
+            }),
           };
-        }
+        });
 
-        if (type === 'image' && typeof value === 'object' && value !== null) {
+        return { tableData: { ...state.tableData, rows: newData } };
+      }),
+
+    handleAddEntityInBlock: (colId, rowId, type, value) =>
+      set((state) => {
+        const newData = state.tableData.rows.map<Row>((item) => {
+          if (item.id !== rowId) return item;
+
+          const column = item[colId];
+          if (!column || typeof column === 'string') return item;
+
+          if (type === 'text' && typeof value === 'string') {
+            return {
+              ...item,
+              [colId]: column.concat([
+                { id: `block_${String(window.crypto.randomUUID())}`, type: 'text', value },
+              ]),
+            };
+          }
+
+          if (type === 'image' && typeof value === 'object' && value !== null) {
+            return {
+              ...item,
+              [colId]: column.concat([
+                { id: `block_${String(window.crypto.randomUUID())}`, type: 'image', image: value },
+              ]),
+            };
+          }
+
+          return item;
+        });
+
+        return { tableData: { ...state.tableData, rows: newData } };
+      }),
+
+    handleRemoveEntityInBlock: (colId, rowId, blockId) =>
+      set((state) => {
+        const newData = state.tableData.rows.map<Row>((item) => {
+          if (item.id !== rowId) return item;
+          const column = item[colId];
+          if (!column || typeof column === 'string') return item;
+
           return {
             ...item,
-            [colId]: column.concat([
-              { id: `block_${String(window.crypto.randomUUID())}`, type: 'image', image: value },
-            ]),
+            [colId]: column.filter((c) => c.id !== blockId),
           };
-        }
+        });
 
-        return item;
-      });
+        return { tableData: { ...state.tableData, rows: newData } };
+      }),
 
-      return { tableData: { ...state.tableData, rows: newData } };
-    }),
+    handleAddRow: () =>
+      set((state) => {
+        const newRowId = `row_${String(window.crypto.randomUUID())}`;
+        const newRow: Row = { id: newRowId };
 
-  handleRemoveEntityInBlock: (colId, rowId, blockId) =>
-    set((state) => {
-      const newData = state.tableData.rows.map<Row>((item) => {
-        if (item.id !== rowId) return item;
-        const column = item[colId];
-        if (!column || typeof column === 'string') return item;
+        state.tableData.columns.forEach((col) => {
+          newRow[col.id] = [];
+        });
 
         return {
-          ...item,
-          [colId]: column.filter((c) => c.id !== blockId),
+          tableData: {
+            ...state.tableData,
+            rows: state.tableData.rows.concat(newRow),
+          },
         };
-      });
+      }),
 
-      return { tableData: { ...state.tableData, rows: newData } };
-    }),
+    handleRemoveRow: (id) =>
+      set((state) => {
+        const newRows = state.tableData.rows.filter((row) => row.id !== id);
 
-  handleAddRow: () =>
-    set((state) => {
-      const newRowId = `row_${String(window.crypto.randomUUID())}`;
-      const newRow: Row = { id: newRowId };
+        return { tableData: { ...state.tableData, rows: newRows } };
+      }),
 
-      state.tableData.columns.forEach((col) => {
-        newRow[col.id] = [];
-      });
+    handleClearRow: (id) =>
+      set((state) => {
+        return {
+          tableData: {
+            ...state.tableData,
+            rows: state.tableData.rows.map((row) => {
+              if (row.id !== id) return row;
+              const newRow = Object.keys(row)
+                .filter((key) => key !== 'id')
+                .reduce<Map<string, Row[]>>((prev, key) => prev.set(key, []), new Map());
 
-      return {
-        tableData: {
-          ...state.tableData,
-          rows: state.tableData.rows.concat(newRow),
-        },
-      };
-    }),
+              return { id: row.id, ...Object.fromEntries(newRow) };
+            }),
+          },
+        };
+      }),
 
-  handleRemoveRow: (id) =>
-    set((state) => {
-      const newRows = state.tableData.rows.filter((row) => row.id !== id);
+    handleAddColumn: () =>
+      set((state) => {
+        const newColId = `col_${String(window.crypto.randomUUID())}`;
+        const newColumns = state.tableData.columns.concat({
+          id: newColId,
+          header: 'Новая колонка',
+        });
+        const newRows = state.tableData.rows.map((row) => ({ ...row, [newColId]: [] }));
 
-      return { tableData: { ...state.tableData, rows: newRows } };
-    }),
+        return { tableData: { columns: newColumns, rows: newRows } };
+      }),
 
-  handleClearRow: (id) =>
-    set((state) => {
-      return {
-        tableData: {
-          ...state.tableData,
-          rows: state.tableData.rows.map((row) => {
-            if (row.id !== id) return row;
-            const newRow = Object.keys(row)
-              .filter((key) => key !== 'id')
-              .reduce<Map<string, Row[]>>((prev, key) => prev.set(key, []), new Map());
+    handleRemoveColumn: (colId) =>
+      set((state) => {
+        const newColumns = state.tableData.columns.filter((item) => item.id !== colId);
+        const newRows = state.tableData.rows.map<Row>((row) => {
+          const newRow = { ...row };
+          delete newRow[colId];
+          return newRow;
+        });
 
-            return { id: row.id, ...Object.fromEntries(newRow) };
-          }),
-        },
-      };
-    }),
+        return { tableData: { columns: newColumns, rows: newRows } };
+      }),
 
-  handleAddColumn: () =>
-    set((state) => {
-      const newColId = `col_${String(window.crypto.randomUUID())}`;
-      const newColumns = state.tableData.columns.concat({ id: newColId, header: 'Новая колонка' });
-      const newRows = state.tableData.rows.map((row) => ({ ...row, [newColId]: [] }));
+    handleChangeNameHeader: (colId, value) =>
+      set((state) => {
+        const newColumns = state.tableData.columns.map((column) => {
+          if (column.id !== colId) return column;
+          return { ...column, header: value };
+        });
 
-      return { tableData: { columns: newColumns, rows: newRows } };
-    }),
+        return { tableData: { ...state.tableData, columns: newColumns } };
+      }),
 
-  handleRemoveColumn: (colId) =>
-    set((state) => {
-      const newColumns = state.tableData.columns.filter((item) => item.id !== colId);
-      const newRows = state.tableData.rows.map<Row>((row) => {
-        const newRow = { ...row };
-        delete newRow[colId];
-        return newRow;
-      });
+    handleAddIconInHeader: (colId, value) =>
+      set((state) => {
+        const newColumns = state.tableData.columns.map((column) => {
+          if (column.id !== colId) return column;
+          return { ...column, icon: value };
+        });
 
-      return { tableData: { columns: newColumns, rows: newRows } };
-    }),
+        return { tableData: { ...state.tableData, columns: newColumns } };
+      }),
 
-  handleChangeNameHeader: (colId, value) =>
-    set((state) => {
-      const newColumns = state.tableData.columns.map((column) => {
-        if (column.id !== colId) return column;
-        return { ...column, header: value };
-      });
+    handleRemoveIconFromHeader: (colId) =>
+      set((state) => {
+        const newColumns = state.tableData.columns.map((column) => {
+          if (column.id !== colId) return column;
+          const { icon, ...rest } = column;
+          return rest;
+        });
 
-      return { tableData: { ...state.tableData, columns: newColumns } };
-    }),
+        return { tableData: { ...state.tableData, columns: newColumns } };
+      }),
+  }));
+};
 
-  handleAddIconInHeader: (colId, value) =>
-    set((state) => {
-      const newColumns = state.tableData.columns.map((column) => {
-        if (column.id !== colId) return column;
-        return { ...column, icon: value };
-      });
+const TableStoreContext = createContext<UseBoundStore<StoreApi<TableState>> | undefined>(undefined);
+export const TableStoreProvider = TableStoreContext.Provider;
 
-      return { tableData: { ...state.tableData, columns: newColumns } };
-    }),
+export const useTableStore = () => {
+  const store = useContext(TableStoreContext);
+  if (!store) {
+    throw new Error('useTableStore must be used within a TableStoreProvider.');
+  }
 
-  handleRemoveIconFromHeader: (colId) =>
-    set((state) => {
-      const newColumns = state.tableData.columns.map((column) => {
-        if (column.id !== colId) return column;
-        const { icon, ...rest } = column;
-        return rest;
-      });
-
-      return { tableData: { ...state.tableData, columns: newColumns } };
-    }),
-}));
+  return store();
+};

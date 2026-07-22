@@ -1,6 +1,6 @@
 {
   "name": "@mish.dev/strapi-table",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The strapi-table plugin enhances your Strapi administration panel by providing advanced table functionalities.",
   "keywords": [
     "strapi",
@@ -11,13 +11,13 @@
     "tabular data",
     "react-quill"
   ],
-  "homepage": "https://github.com/mish.dev/strapi-table",
+  "homepage": "https://github.com/mish-design/strapi-table",
   "bugs": {
     "url": "https://github.com/mish-design/strapi-table/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mish.dev/strapi-table"
+    "url": "git+https://github.com/mish-design/strapi-table"
   },
   "license": "MIT",
   "author": "Hwaiteu <benner.andrey.loon@gmail.com>",
@@ -31,20 +31,6 @@
       "default": "./dist/admin/index.js"
     },
     "./package.json": "./package.json",
-    "./admin": {
-      "types": "./dist/admin/src/index.d.ts",
-      "source": "./admin/src/index.ts",
-      "import": "./dist/admin/index.mjs",
-      "require": "./dist/admin/index.js",
-      "default": "./dist/admin/index.js"
-    },
-    "./server": {
-      "types": "./dist/server/src/index.d.ts",
-      "source": "./server/src/index.ts",
-      "import": "./dist/server/index.mjs",
-      "require": "./dist/server/index.js",
-      "default": "./dist/server/index.js"
-    },
     "./strapi-admin": {
       "types": "./dist/admin/src/index.d.ts",
       "source": "./admin/src/index.ts",
