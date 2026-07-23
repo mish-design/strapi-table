@@ -28,6 +28,7 @@ export type Row = {
 export type Column = {
   id: string;
   header: string;
+  order: number;
   icon?: {
     position: 'left' | 'right';
   } & Modules.Documents.Result<'plugin::upload.file'> & {
@@ -70,8 +71,16 @@ type TableState = {
 };
 
 export const createTableStore = (initData: Table): UseBoundStore<StoreApi<TableState>> => {
+  const isWithOrder = initData.columns.every((column) => typeof column.order === 'number');
+  const newInitData = isWithOrder
+    ? {
+        ...initData,
+        columns: initData.columns.map((column, idx) => ({ ...column, order: idx + 1 })),
+      }
+    : initData;
+
   return create<TableState>((set) => ({
-    tableData: initData,
+    tableData: newInitData,
 
     setTableData: (data) => set({ tableData: data }),
 
@@ -195,6 +204,7 @@ export const createTableStore = (initData: Table): UseBoundStore<StoreApi<TableS
         const newColumns = state.tableData.columns.concat({
           id: newColId,
           header: 'Новая колонка',
+          order: state.tableData.columns.length,
         });
         const newRows = state.tableData.rows.map((row) => ({ ...row, [newColId]: [] }));
 

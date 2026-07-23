@@ -24,10 +24,12 @@ const mockTable: ITable = {
     {
       id: 'col-1',
       header: 'Название товара',
+      order: 1,
     },
     {
       id: 'col-2',
       header: 'Описание и характеристики',
+      order: 2,
     },
   ],
   rows: [

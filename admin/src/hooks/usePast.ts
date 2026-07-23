@@ -56,9 +56,10 @@ export const usePast = create<Action>(() => ({
 
     const maxColumnsCount = Math.max(...rawRows.map((row) => row.length));
 
-    const columns: Column[] = Array.from({ length: maxColumnsCount }).map(() => ({
+    const columns: Column[] = Array.from({ length: maxColumnsCount }).map((_, idx) => ({
       id: `col_${window.crypto.randomUUID()}`,
       header: 'Новая колонка',
+      order: idx + 1,
     }));
 
     const rows: Row[] = rawRows.map((rawRow) => {
