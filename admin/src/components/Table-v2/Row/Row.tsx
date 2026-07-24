@@ -58,7 +58,7 @@ export const Row = ({ rows, $hasLeftShadow, columnsCount }: Readonly<Props>) => 
   return (
     <>
       {rows.map((row, idx) => {
-        const { id, ...rest } = row;
+        const { id, cells } = row;
         return (
           <RowTable
             key={id}
@@ -73,10 +73,10 @@ export const Row = ({ rows, $hasLeftShadow, columnsCount }: Readonly<Props>) => 
               <Typography tag="h5">{idx + 1}</Typography>
             </CellNumber>
 
-            {Object.keys(rest).map((key) => {
-              const value = rest[key];
-              if (typeof value === 'string') return null;
-              return <Cell colId={key} rowId={id} value={value} key={key} />;
+            {cells.map((cell) => {
+              return (
+                <Cell colId={cell.columnId} rowId={id} value={cell.value} key={cell.columnId} />
+              );
             })}
           </RowTable>
         );

@@ -35,13 +35,29 @@ const mockTable: ITable = {
   rows: [
     {
       id: 'row-1',
-      'col-1': [],
-      'col-2': [],
+      cells: [
+        {
+          columnId: 'col-1',
+          value: [],
+        },
+        {
+          columnId: 'col-2',
+          value: [],
+        },
+      ],
     },
     {
       id: 'row-2',
-      'col-1': [],
-      'col-2': [],
+      cells: [
+        {
+          columnId: 'col-1',
+          value: [],
+        },
+        {
+          columnId: 'col-2',
+          value: [],
+        },
+      ],
     },
   ],
 };

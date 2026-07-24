@@ -44,10 +44,21 @@ To install the `strapi-table` plugin, follow these steps:
     ```
 
 4.  **Start your Strapi application:**
+
     ```bash
     npm run develop
     # or
     yarn develop
+    ```
+
+5.  **Usage in field Strapi**
+
+    ```json
+    "data": {
+      "type": "customField",
+      "customField": "plugin::strapi-table.StrapiTable",
+      "required": true
+    }
     ```
 
 ## Usage

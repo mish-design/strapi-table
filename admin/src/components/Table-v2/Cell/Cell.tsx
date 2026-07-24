@@ -12,7 +12,7 @@ import {
   CellBlockTextDelete,
 } from './Cell.style';
 import { Fragment } from 'react/jsx-runtime';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useStrapiApp } from '@strapi/strapi/admin';
 import { Typography } from '@strapi/design-system';
 import { type Cell as ICell, type Image, useTableStore } from '../../../hooks/useTable';

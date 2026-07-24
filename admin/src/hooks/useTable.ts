@@ -22,7 +22,7 @@ export type Cell = Image | Text;
 
 export type Row = {
   id: string;
-  [columnId: string]: Cell[] | string;
+  cells: { columnId: string; value: Cell[] }[];
 };
 
 export type Column = {
@@ -88,20 +88,25 @@ export const createTableStore = (initData: Table): UseBoundStore<StoreApi<TableS
       set((state) => {
         const newData = state.tableData.rows.map<Row>((item) => {
           if (item.id !== rowId) return item;
-          const column = item[colId];
+          const column = item.cells.find((cell) => cell.columnId === colId);
           if (!column || typeof column === 'string') return item;
 
           return {
             ...item,
-            [colId]: column.map((i) => {
-              if (i.id !== blockId) return i;
-              if (i.type === 'text' && typeof newValue === 'string') {
-                return { ...i, value: newValue };
-              }
-              if (i.type === 'image' && typeof newValue === 'object' && newValue !== null) {
-                return { ...i, image: newValue };
-              }
-              return i;
+            cells: item.cells.map((cell) => {
+              if (cell.columnId != colId) return cell;
+
+              return {
+                ...cell,
+                value: cell.value.map((block) => {
+                  if (block.id !== blockId) return block;
+                  if (block.type === 'text' && typeof newValue === 'string')
+                    return { ...block, value: newValue };
+                  if (block.type === 'image' && typeof newValue === 'object' && newValue !== null)
+                    return { ...block, image: newValue };
+                  return block;
+                }),
+              };
             }),
           };
         });
@@ -113,25 +118,33 @@ export const createTableStore = (initData: Table): UseBoundStore<StoreApi<TableS
       set((state) => {
         const newData = state.tableData.rows.map<Row>((item) => {
           if (item.id !== rowId) return item;
-
-          const column = item[colId];
-          if (!column || typeof column === 'string') return item;
-
           if (type === 'text' && typeof value === 'string') {
             return {
               ...item,
-              [colId]: column.concat([
-                { id: `block_${String(window.crypto.randomUUID())}`, type: 'text', value },
-              ]),
+              cells: item.cells.map((cell) => {
+                if (cell.columnId !== colId) return cell;
+                const newBlock: Text = {
+                  id: `block_${String(window.crypto.randomUUID())}`,
+                  type: 'text',
+                  value,
+                };
+
+                return { ...cell, value: cell.value.concat(newBlock) };
+              }),
             };
           }
-
           if (type === 'image' && typeof value === 'object' && value !== null) {
             return {
               ...item,
-              [colId]: column.concat([
-                { id: `block_${String(window.crypto.randomUUID())}`, type: 'image', image: value },
-              ]),
+              cells: item.cells.map((cell) => {
+                if (cell.columnId !== colId) return cell;
+                const newBlock: Image = {
+                  id: `block_${String(window.crypto.randomUUID())}`,
+                  type: 'image',
+                  image: value,
+                };
+                return { ...cell, value: cell.value.concat(newBlock) };
+              }),
             };
           }
 
@@ -145,12 +158,12 @@ export const createTableStore = (initData: Table): UseBoundStore<StoreApi<TableS
       set((state) => {
         const newData = state.tableData.rows.map<Row>((item) => {
           if (item.id !== rowId) return item;
-          const column = item[colId];
-          if (!column || typeof column === 'string') return item;
-
           return {
             ...item,
-            [colId]: column.filter((c) => c.id !== blockId),
+            cells: item.cells.map((cell) => {
+              if (cell.columnId !== colId) return cell;
+              return { ...cell, value: cell.value.filter((block) => block.id !== blockId) };
+            }),
           };
         });
 
@@ -160,10 +173,10 @@ export const createTableStore = (initData: Table): UseBoundStore<StoreApi<TableS
     handleAddRow: () =>
       set((state) => {
         const newRowId = `row_${String(window.crypto.randomUUID())}`;
-        const newRow: Row = { id: newRowId };
+        const newRow: Row = { id: newRowId, cells: [] };
 
         state.tableData.columns.forEach((col) => {
-          newRow[col.id] = [];
+          newRow.cells.push({ columnId: col.id, value: [] });
         });
 
         return {
@@ -188,11 +201,8 @@ export const createTableStore = (initData: Table): UseBoundStore<StoreApi<TableS
             ...state.tableData,
             rows: state.tableData.rows.map((row) => {
               if (row.id !== id) return row;
-              const newRow = Object.keys(row)
-                .filter((key) => key !== 'id')
-                .reduce<Map<string, Row[]>>((prev, key) => prev.set(key, []), new Map());
 
-              return { id: row.id, ...Object.fromEntries(newRow) };
+              return { id: row.id, cells: row.cells.map((cell) => ({ ...cell, value: [] })) };
             }),
           },
         };
@@ -206,7 +216,10 @@ export const createTableStore = (initData: Table): UseBoundStore<StoreApi<TableS
           header: 'Новая колонка',
           order: state.tableData.columns.length,
         });
-        const newRows = state.tableData.rows.map((row) => ({ ...row, [newColId]: [] }));
+        const newRows = state.tableData.rows.map((row) => ({
+          ...row,
+          cells: row.cells.concat({ columnId: newColId, value: [] }),
+        }));
 
         return { tableData: { columns: newColumns, rows: newRows } };
       }),
@@ -215,9 +228,7 @@ export const createTableStore = (initData: Table): UseBoundStore<StoreApi<TableS
       set((state) => {
         const newColumns = state.tableData.columns.filter((item) => item.id !== colId);
         const newRows = state.tableData.rows.map<Row>((row) => {
-          const newRow = { ...row };
-          delete newRow[colId];
-          return newRow;
+          return { ...row, cells: row.cells.filter((cell) => cell.columnId != colId) };
         });
 
         return { tableData: { columns: newColumns, rows: newRows } };

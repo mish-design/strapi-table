@@ -64,19 +64,22 @@ export const usePast = create<Action>(() => ({
 
     const rows: Row[] = rawRows.map((rawRow) => {
       const rowId = `row_${window.crypto.randomUUID()}`;
-      const rowData: Row = { id: rowId };
+      const rowData: Row = { id: rowId, cells: [] };
 
       columns.forEach((col, colIndex) => {
         const rawValue = rawRow[colIndex] || '';
         const wrappedValue = `<p>${rawValue}</p>`;
 
-        rowData[col.id] = [
-          {
-            id: `block_${window.crypto.randomUUID()}`,
-            type: 'text',
-            value: wrappedValue,
-          },
-        ];
+        rowData.cells.push({
+          columnId: col.id,
+          value: [
+            {
+              id: `block_${window.crypto.randomUUID()}`,
+              type: 'text',
+              value: wrappedValue,
+            },
+          ],
+        });
       });
 
       return rowData;
