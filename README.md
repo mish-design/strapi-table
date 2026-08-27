@@ -75,8 +75,14 @@ Once installed and enabled, the `Strapi Table` plugin should appear in your Stra
 
 ### Hotkeys
 
-- **`Backspace`**: Clears all content within the selected row.
-- **`Delete`**: Deletes the entire selected row.
+- **`Backspace`**: Clears all content within the selected row, selected column (click its header cell), or the entire table (click the top-left corner cell).
+- **`Delete`**: Deletes the entire selected row or selected column.
+- **`Escape`**: Clears the current selection.
+
+### Drag and drop
+
+- **Rows**: drag a row by its number cell to reorder rows (movement is locked to the vertical axis within the table).
+- **Columns**: drag a column by its header cell to reorder columns (movement is locked to the horizontal axis within the header; cells in every row are reordered accordingly).
 
 ### Inserting Content
 
