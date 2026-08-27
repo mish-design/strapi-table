@@ -10,6 +10,8 @@ type Props = {
   onCancel: () => void;
 };
 
+const normalizeSpaces = (html: string) => html.replace(/\u00A0/g, ' ').replace(/&nbsp;/g, ' ');
+
 export const Editor = ({ onCancel, onSave, value }: Readonly<Props>) => {
   const [text, setText] = useState(value);
   const modules = {
@@ -34,7 +36,7 @@ export const Editor = ({ onCancel, onSave, value }: Readonly<Props>) => {
         placeholder="Текст"
       />
       <Flex gap={1} style={{ marginTop: 8 }}>
-        <Button size="S" onClick={() => onSave(text)}>
+        <Button size="S" onClick={() => onSave(normalizeSpaces(text))}>
           Сохранить
         </Button>
         <Button size="S" variant="secondary" onClick={onCancel}>
