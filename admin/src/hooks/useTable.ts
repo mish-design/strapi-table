@@ -63,6 +63,10 @@ type TableState = {
   handleAddRow: () => void;
   handleRemoveRow: (id: string) => void;
   handleClearRow: (id: string) => void;
+  handleMoveRow: (activeId: string, overId: string) => void;
+  handleMoveColumn: (activeId: string, overId: string) => void;
+  handleClearColumn: (colId: string) => void;
+  handleClearTable: () => void;
   handleAddColumn: () => void;
   handleRemoveColumn: (colId: string) => void;
   handleChangeNameHeader: (colId: string, value: string) => void;
@@ -204,6 +208,68 @@ export const createTableStore = (initData: Table): UseBoundStore<StoreApi<TableS
 
               return { id: row.id, cells: row.cells.map((cell) => ({ ...cell, value: [] })) };
             }),
+          },
+        };
+      }),
+
+    handleMoveRow: (activeId, overId) =>
+      set((state) => {
+        const oldIndex = state.tableData.rows.findIndex((row) => row.id === activeId);
+        const newIndex = state.tableData.rows.findIndex((row) => row.id === overId);
+        if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return state;
+
+        const newRows = [...state.tableData.rows];
+        const [movedRow] = newRows.splice(oldIndex, 1);
+        newRows.splice(newIndex, 0, movedRow);
+
+        return { tableData: { ...state.tableData, rows: newRows } };
+      }),
+
+    handleMoveColumn: (activeId, overId) =>
+      set((state) => {
+        const oldIndex = state.tableData.columns.findIndex((column) => column.id === activeId);
+        const newIndex = state.tableData.columns.findIndex((column) => column.id === overId);
+        if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return state;
+
+        const movedColumns = [...state.tableData.columns];
+        const [movedColumn] = movedColumns.splice(oldIndex, 1);
+        movedColumns.splice(newIndex, 0, movedColumn);
+
+        const newColumns = movedColumns.map((column, idx) => ({ ...column, order: idx + 1 }));
+        const newRows = state.tableData.rows.map<Row>((row) => ({
+          ...row,
+          cells: newColumns
+            .map((column) => row.cells.find((cell) => cell.columnId === column.id))
+            .filter((cell): cell is Row['cells'][number] => Boolean(cell)),
+        }));
+
+        return { tableData: { columns: newColumns, rows: newRows } };
+      }),
+
+    handleClearColumn: (colId) =>
+      set((state) => {
+        return {
+          tableData: {
+            ...state.tableData,
+            rows: state.tableData.rows.map((row) => ({
+              ...row,
+              cells: row.cells.map((cell) =>
+                cell.columnId === colId ? { ...cell, value: [] } : cell
+              ),
+            })),
+          },
+        };
+      }),
+
+    handleClearTable: () =>
+      set((state) => {
+        return {
+          tableData: {
+            ...state.tableData,
+            rows: state.tableData.rows.map((row) => ({
+              ...row,
+              cells: row.cells.map((cell) => ({ ...cell, value: [] })),
+            })),
           },
         };
       }),
