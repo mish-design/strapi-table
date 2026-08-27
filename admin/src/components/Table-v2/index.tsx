@@ -41,12 +41,12 @@ const mockTable: ITable = {
   columns: [
     {
       id: 'col-1',
-      header: 'Название товара',
+      header: 'Новая колонка',
       order: 1,
     },
     {
       id: 'col-2',
-      header: 'Описание и характеристики',
+      header: 'Новая колонка',
       order: 2,
     },
   ],
@@ -82,8 +82,14 @@ const mockTable: ITable = {
 
 export const Table = ({ onChange, value }: Readonly<Props>) => {
   const useInstanceTableStore = useMemo(() => createTableStore(value || mockTable), [value]);
-  const { tableData, handleAddRow, handleAddColumn, setTableData, handleMoveRow, handleMoveColumn } =
-    useInstanceTableStore();
+  const {
+    tableData,
+    handleAddRow,
+    handleAddColumn,
+    setTableData,
+    handleMoveRow,
+    handleMoveColumn,
+  } = useInstanceTableStore();
   const { activeCell, activeTable } = useActiveStore();
 
   const topScroll = useIntersection();
